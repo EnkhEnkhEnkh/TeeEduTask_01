@@ -1,0 +1,133 @@
+GraphicsWindow.BackgroundColor = GraphicsWindow.GetColorFromRGB(255, 255, 255)
+GraphicsWindow.BrushColor = GraphicsWindow.GetColorFromRGB(0, 0, 0)
+GraphicsWindow.Title = "Даалгавар_01"
+GraphicsWindow.Width = 600
+GraphicsWindow.Height = 600
+Program.Delay(1000)
+GraphicsWindow.Clear()
+
+path = Program.Directory
+
+Batman = ImageList.LoadImage(path+"\Batman.png")
+Superman = ImageList.LoadImage(path+"\Superman.png")
+Chest = ImageList.LoadImage(path+"\Chest.png")
+'Player1 
+player1X = Math.GetRandomNumber(600)
+player1Y = Math.GetRandomNumber(600)
+player1Direction = "right"
+Player1Score = 0
+'Player2 
+player2X = Math.GetRandomNumber(600)
+player2Y = Math.GetRandomNumber(600)
+player2Direction = "left"
+Player2Score = 0
+'Chest location
+chestX = Math.GetRandomNumber(GraphicsWindow.Width)
+chestY = Math.GetRandomNumber(GraphicsWindow.Height)
+
+Sub GenerateChest
+  GraphicsWindow.DrawImage(path+"\Chest.png", chestX, chestY)
+EndSub
+
+Sub Win
+    GraphicsWindow.BackgroundColor = "Black"
+    Program.Delay(1000)
+    Program.End()
+EndSub
+Sub UpdateGame
+  ' Player 1 controls (Arrow keys)
+   If GraphicsWindow.LastKey="Up" And player1Direction <> "down" Then
+    player1Direction = "up"
+  ElseIf GraphicsWindow.LastKey="Down" And player1Direction <> "up" Then
+    player1Direction = "down"
+  ElseIf GraphicsWindow.LastKey="Left" And player1Direction <> "right" Then
+    player1Direction = "left"
+  ElseIf GraphicsWindow.LastKey="Right" And player1Direction <> "left" Then
+    player1Direction = "right"
+  EndIf
+  ' Player 2 controls (WASD keys)
+  If GraphicsWindow.LastKey="W" And player2Direction <> "down" Then
+    player2Direction = "up"
+  ElseIf GraphicsWindow.LastKey="S" And player2Direction <> "up" Then
+    player2Direction = "down"
+  ElseIf GraphicsWindow.LastKey="A" And player2Direction <> "right" Then
+    player2Direction = "left"
+  ElseIf GraphicsWindow.LastKey="D" And player2Direction <> "left" Then
+    player2Direction = "right"
+  EndIf
+  ' Move the player1
+  If player1Direction = "up" Then
+    player1Y = player1Y - 10
+  ElseIf player1Direction = "down" Then
+    player1Y = player1Y + 10
+  ElseIf player1Direction = "left" Then
+    player1X = player1X - 10
+  ElseIf player1Direction = "right" Then
+    player1X = player1X + 10
+  EndIf
+  ' Move the player2
+  If player2Direction = "up" Then
+    player2Y = player2Y - 10
+  ElseIf player2Direction = "down" Then
+    player2Y = player2Y + 10
+  ElseIf player2Direction = "left" Then
+    player2X = player2X - 10
+  ElseIf player2Direction = "right" Then
+    player2X = player2X + 10
+  EndIf
+  'Check for collision with wall player1
+  If player1X < 0 then 
+    player1X = GraphicsWindow.Width
+  ElseIf player1X >= GraphicsWindow.Width then
+    player1X = 0
+  ElseIf player1Y < 0 then
+    player1Y = GraphicsWindow.Height
+  Elseif player1Y >= GraphicsWindow.Height Then
+    player1Y = 0
+  EndIf
+  'Check for collision with wall player2
+  If player2X < 0 then 
+    player2X = GraphicsWindow.Width
+  ElseIf player2X >= GraphicsWindow.Width then
+    player2X = 0
+  ElseIf player2Y < 0 then
+    player2Y = GraphicsWindow.Height
+  Elseif player2Y >= GraphicsWindow.Height Then
+    player2Y = 0
+  EndIf
+  
+  GraphicsWindow.Clear()
+  'Creating players and  chest
+  GenerateChest()
+  GraphicsWindow.DrawImage(path+"\Batman.png", player1X, player1Y)
+  GraphicsWindow.DrawImage(path+"\Superman.png", player2X, player2Y)
+  'Check collision with chest  player1
+  If (player1X + ImageList.GetWidthOfImage(Batman) >= chestX) And (player1X <= chestX + ImageList.GetWidthOfImage(Chest)) And (player1Y + ImageList.GetHeightOfImage(Batman) >= chestY) And (player1Y <= chestY + ImageList.GetHeightOfImage(Chest)) Then
+    Player1Score = Player1Score + 1
+    chestX = Math.GetRandomNumber(GraphicsWindow.Width)
+    chestY = Math.GetRandomNumber(GraphicsWindow.Height)
+  EndIf
+  'Check collision with chest  player2
+  If (player2X + ImageList.GetWidthOfImage(Superman) >= chestX) And (player2X <= chestX + ImageList.GetWidthOfImage(Chest)) And (player2Y + ImageList.GetHeightOfImage(Superman) >= chestY) And (player2Y <= chestY + ImageList.GetHeightOfImage(Chest)) Then
+    Player2Score = Player2Score + 1
+    chestX = Math.GetRandomNumber(GraphicsWindow.Width)
+    chestY = Math.GetRandomNumber(GraphicsWindow.Height)
+  EndIf
+  'Check scores
+  If Player1Score > 5 Then
+    GraphicsWindow.BrushColor = GraphicsWindow.GetColorFromRGB(0, 255, 0)
+    GraphicsWindow.DrawBoundText(GraphicsWindow.Width/2, GraphicsWindow.Height/2, GraphicsWindow.Width, "Player 1 Win!")
+    Win()
+  EndIf
+  If Player2Score > 5 Then
+    GraphicsWindow.BrushColor = GraphicsWindow.GetColorFromRGB(0, 255, 0)
+    GraphicsWindow.DrawBoundText(GraphicsWindow.Width/2, GraphicsWindow.Height/2, GraphicsWindow.Width, "Player 2 Win!")
+    Win()
+  EndIf
+EndSub
+
+' Main game loop
+While "true"
+  UpdateGame()
+  Program.Delay(100)
+EndWhile
